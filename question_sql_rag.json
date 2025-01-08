@@ -1,0 +1,31 @@
+{
+    "Generic Questions": [
+        { "question": "How many unique branches are present in the dataset?", "sql": "SELECT COUNT(DISTINCT Branch) FROM sales;" },
+        { "question": "How many unique products were sold in each branch?", "sql": "SELECT Branch, COUNT(DISTINCT Product_line) FROM sales GROUP BY Branch;" },
+        { "question": "What is the total quantity of products sold across all branches?", "sql": "SELECT SUM(Quantity) AS total_quantity FROM sales;" }
+    ],
+    "Product Analysis": [
+        { "question": "What is the highest price per unit for any product?", "sql": "SELECT MAX(Unit_price) FROM sales;" },
+        { "question": "What is the lowest price per unit for any product?", "sql": "SELECT MIN(Unit_price) FROM sales;" },
+        { "question": "Which product line has the most transactions?", "sql": "SELECT Product_line, COUNT(Invoice_ID) AS transaction_count FROM sales GROUP BY Product_line ORDER BY transaction_count DESC LIMIT 1;" }
+    ],
+    "Sales Analysis": [
+        { "question": "What is the distribution of sales by time of day?", "sql": "SELECT HOUR(Time) AS hour, COUNT(Invoice_ID) AS sales_count FROM sales GROUP BY hour ORDER BY sales_count DESC;" },
+        { "question": "What is the revenue distribution by time of day?", "sql": "SELECT HOUR(Time) AS hour, SUM(Total) AS revenue FROM sales GROUP BY hour ORDER BY revenue DESC;" }
+    ],
+    "Revenue Analysis": [
+        { "question": "Which branch generated the most revenue?", "sql": "SELECT Branch, SUM(Total) AS revenue FROM sales GROUP BY Branch ORDER BY revenue DESC LIMIT 1;" }
+    ],
+    "Customer Analysis": [
+        { "question": "How many male and female customers are there in each branch?", "sql": "SELECT Branch, Gender, COUNT(*) AS customer_count FROM sales GROUP BY Branch, Gender;" }
+    ],
+    "Time Analysis": [
+        { "question": "On which day of the month are the most transactions made?", "sql": "SELECT DAY(Date) AS day_of_month, COUNT(Invoice_ID) AS transaction_count FROM sales GROUP BY day_of_month ORDER BY transaction_count DESC LIMIT 1;" }
+    ],
+    "Performance Analysis": [
+        { "question": "What is the most commonly used payment method for the highest revenue transactions?", "sql": "SELECT Payment, COUNT(*) AS payment_count FROM sales WHERE Total > (SELECT AVG(Total) FROM sales) GROUP BY Payment ORDER BY payment_count DESC;" }
+    ],
+    "Customer Trends": [
+        { "question": "What is the most common customer type for high revenue transactions?", "sql": "SELECT Customer_type, COUNT(*) AS customer_count FROM sales WHERE Total > (SELECT AVG(Total) FROM sales) GROUP BY Customer_type ORDER BY customer_count DESC;" }
+    ]
+}

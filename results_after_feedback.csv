@@ -1,0 +1,91 @@
+Question,Generated SQL,Ground Truth SQL,Generated Output,Ground Truth Output,Similarity Analysis
+Which branch made the highest number of sales?,"SELECT Branch, COUNT(Invoice_ID) AS sales_count FROM sales GROUP BY Branch ORDER BY sales_count DESC LIMIT 1;","SELECT Branch, SUM(quantity) AS sales_count FROM sales GROUP BY Branch ORDER BY sales_count DESC LIMIT 1;","  Branch  sales_count
+0      A          340","  Branch sales_count
+0      A        1859",Almost Correct
+Which gender purchases the most products?,"SELECT Gender, SUM(quantity) AS total_products FROM sales GROUP BY Gender ORDER BY total_products DESC;","SELECT Gender, SUM(Quantity) AS total_quantity FROM sales GROUP BY Gender ORDER BY total_quantity DESC LIMIT 1;","   Gender total_products
+0  Female           2869
+1    Male           2641","   Gender total_quantity
+0  Female           2869",Almost Correct
+What is the most commonly purchased product line for each city?,"SELECT City, Product_line, COUNT(Product_line) AS product_count FROM sales GROUP BY City, Product_line ORDER BY product_count DESC;","WITH ranked_sales AS ( SELECT city, product_line,COUNT(*) AS purchase_count, RANK() OVER (PARTITION BY city ORDER BY COUNT(*) DESC) AS rank1 FROM sales GROUP BY city, product_line) SELECT city, product_line, purchase_count FROM ranked_sales WHERE rank1 = 1;","         City            Product_line  product_count
+0   Naypyitaw      Food and beverages             66
+1      Yangon      Home and lifestyle             65
+2   Naypyitaw     Fashion accessories             65
+3    Mandalay     Fashion accessories             62
+4    Mandalay       Sports and travel             62
+5      Yangon  Electronic accessories             60
+6      Yangon       Sports and travel             59
+7      Yangon      Food and beverages             58
+8   Naypyitaw  Electronic accessories             55
+9    Mandalay  Electronic accessories             55
+10   Mandalay       Health and beauty             53
+11  Naypyitaw       Health and beauty             52
+12     Yangon     Fashion accessories             51
+13   Mandalay      Food and beverages             50
+14   Mandalay      Home and lifestyle             50
+15     Yangon       Health and beauty             47
+16  Naypyitaw      Home and lifestyle             45
+17  Naypyitaw       Sports and travel             45","        city         product_line  purchase_count
+0   Mandalay    Sports and travel              62
+1   Mandalay  Fashion accessories              62
+2  Naypyitaw   Food and beverages              66
+3     Yangon   Home and lifestyle              65",Wrong Answer
+Calculate the revenue per unit for each product line.,"SELECT product_line, AVG(Total) AS revenue_per_unit FROM sales GROUP BY product_line ORDER BY revenue_per_unit DESC;","SELECT Product_line, SUM(Total)/SUM(Quantity) AS revenue_per_unit FROM sales GROUP BY Product_line;","             product_line revenue_per_unit
+0      Home and lifestyle     336.63695625
+1       Sports and travel     332.06521988
+2       Health and beauty     323.64301974
+3      Food and beverages     322.67151724
+4  Electronic accessories     319.63253824
+5     Fashion accessories     305.08929775","             Product_line revenue_per_unit
+0      Food and beverages      58.97567647
+1       Health and beauty      57.60390984
+2       Sports and travel      59.91611576
+3     Fashion accessories      60.20609202
+4      Home and lifestyle      59.12394402
+5  Electronic accessories      55.96038260",Wrong Answer
+Which time of day records the highest average rating?,"SELECT HOUR(Time) AS hour, AVG(Rating) AS avg_rating FROM sales GROUP BY hour ORDER BY avg_rating ASC, hour ASC LIMIT 1;","SELECT TIME_FORMAT(Time, '%H:00') AS hour, AVG(Rating) AS avg_rating FROM sales GROUP BY hour ORDER BY avg_rating DESC LIMIT 1;","   hour  avg_rating
+0    19     6.71593","    hour  avg_rating
+0  12:00         7.3",Almost Correct
+What is the average revenue generated per branch?,SELECT AVG(Total) AS average_revenue_per_branch FROM sales GROUP BY branch;,"SELECT Branch, AVG(Total) AS avg_revenue FROM sales GROUP BY Branch ORDER BY avg_revenue DESC;","  average_revenue_per_branch
+0               312.35403088
+1               337.09971494
+2               319.87250602","  Branch   avg_revenue
+0      C  337.09971494
+1      B  319.87250602
+2      A  312.35403088",Wrong Answer
+What is the most preferred payment method by gender?,"SELECT Gender, Payment FROM (
+ SELECT Gender, Payment, COUNT(*) AS payment_count FROM sales GROUP BY Gender ORDER BY payment_count DESC
+) AS payment_counts WHERE Payment = (SELECT Payment FROM payment_counts WHERE Gender = Gender ORDER BY payment_count DESC LIMIT 1);","WITH ranked_payments AS ( SELECT Gender,Payment, COUNT(*) AS payment_count, RANK() OVER (PARTITION BY Gender ORDER BY COUNT(*) DESC) AS rank1 FROM sales GROUP BY Gender, Payment) SELECT Gender, Payment, payment_count FROM ranked_payments WHERE rank1 = 1;","  average_revenue_per_branch
+0               312.35403088
+1               337.09971494
+2               319.87250602","   Gender  Payment  payment_count
+0  Female     Cash            178
+1    Male  Ewallet            185",Wrong Answer
+What is the most common payment method used by each gender?,"SELECT Gender, Payment, COUNT(*) AS payment_count FROM sales GROUP BY Gender, Payment ORDER BY gender, payment_count DESC;","WITH ranked_payments AS ( SELECT Gender,Payment, COUNT(*) AS payment_count, RANK() OVER (PARTITION BY Gender ORDER BY COUNT(*) DESC) AS rank1 FROM sales GROUP BY Gender, Payment) SELECT Gender, Payment, payment_count FROM ranked_payments WHERE rank1 = 1;","   Gender      Payment  payment_count
+0  Female         Cash            178
+1  Female  Credit card            163
+2  Female      Ewallet            160
+3    Male      Ewallet            185
+4    Male         Cash            166
+5    Male  Credit card            148","   Gender  Payment  payment_count
+0  Female     Cash            178
+1    Male  Ewallet            185",Wrong Answer
+How does the quantity sold vary with each payment method?,"SELECT Payment, SUM(Quantity) AS total_quantity FROM sales GROUP BY Payment ORDER BY Payment, total_quantity DESC;","SELECT Payment, AVG(Quantity) AS avg_quantity FROM sales GROUP BY Payment ORDER BY avg_quantity DESC;","       Payment total_quantity
+0         Cash           1896
+1  Credit card           1722
+2      Ewallet           1892","       Payment avg_quantity
+0  Credit card       5.5370
+1         Cash       5.5116
+2      Ewallet       5.4841",Almost Correct
+What is the most common product line for transactions above 500?,"SELECT product_line, COUNT(*) AS transaction_count FROM sales WHERE Total > 500 GROUP BY product_line ORDER BY transaction_count DESC LIMIT 1;","SELECT Product_line, COUNT(*) AS product_count FROM sales WHERE Total > 500 GROUP BY Product_line ORDER BY product_count DESC;","        product_line  transaction_count
+0  Sports and travel                 40","             Product_line  product_count
+0       Sports and travel             40
+1      Home and lifestyle             38
+2  Electronic accessories             38
+3       Health and beauty             38
+4      Food and beverages             37
+5     Fashion accessories             36",Almost Correct
+How many transactions did each gender make during time 18 and 21?,"SELECT Gender, COUNT(Invoice_ID) AS transactions FROM sales WHERE TIME = '18:00:00' OR TIME = '21:00:00' GROUP BY Gender ORDER BY transactions DESC;","SELECT Gender, COUNT(Invoice_ID) AS transaction_count FROM sales WHERE HOUR(Time) BETWEEN 18 AND 21 GROUP BY Gender ORDER BY transaction_count DESC;","   Gender  transactions
+0  Female             1
+1    Male             1","   Gender  transaction_count
+0    Male                151
+1  Female                130",Almost Correct
